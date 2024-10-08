@@ -44,6 +44,7 @@ static void	ft_validate_file_open(int in_fd, int out_fd, t_list *l, char *av[])
 static void	ft_fork_and_exec(t_list *l, char *envp[], int fd[])
 {
 	int		pid;
+	int		status;
 	t_cmd	*cmd;
 
 	cmd = (t_cmd *)(l->content);
@@ -53,18 +54,17 @@ static void	ft_fork_and_exec(t_list *l, char *envp[], int fd[])
 	else if (pid == 0)
 	{
 		close(fd[0]);
-		if (!cmd->path || access(cmd->path, X_OK != 0))
+		if (!cmd->path || access(cmd->path, X_OK) != 0)
 		{
 			ft_close_three(fd[1], STDIN_FILENO, STDOUT_FILENO);
 			ft_invalid_cmd(&l, (void (*)(void *))ft_free_cmd, cmd, 127);
 		}
-		else
-		execve(cmd->path, cmd->cmd, envp);
+		execve(cmd->path, cmd->cmd, NULL);
 		ft_lclr_err(&l, (void (*)(void *))ft_free_cmd, "execve", errno);
 	}
-	else
+	else 
 	{
-		wait(NULL);
+		waitpid(pid, &status, 0);
 		if (cmd->is_last)
 			ft_close_four(fd[0], fd[1], STDIN_FILENO, STDOUT_FILENO);
 	}

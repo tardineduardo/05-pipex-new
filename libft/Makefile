@@ -72,10 +72,6 @@ NAME = libft.a
 
 all: $(NAME)
 
-
-#bonus: $(OBJS_B) $(OBJS_S)
-#	ar rc $(NAME) $(OBJS_B) $(OBJS_S)
-
 $(NAME): $(OBJS_S) $(OBJS_B)
 	ar rc $(NAME) $(OBJS_S) $(OBJS_B)
 
