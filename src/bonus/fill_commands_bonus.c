@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:45:21 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/03 19:04:39 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/08 18:48:58 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ void	ft_get_path_type_and_fix_cmd(t_cmd *cmd)
 	char	*temp;
 	char	*last_slash;
 
+	if (!cmd->cmd)
+		return ;
 	cmd->is_environment_path = false;
 	cmd->is_absolute_path = false;
 	cmd->is_current_directory = false;
@@ -69,6 +71,7 @@ void	fill_commands(int argc, char *argv[], char *envp[], t_list **head)
 			ft_lclr_err_node(head, del, "malloc error", cmd);
 		ft_get_position(cmd, argc, cmd_index);
 		cmd->ac = argc;
+		cmd->av = argv[cmd_index];
 		cmd->cmd_index = cmd_index;
 		cmd->pip_index = cmd_index - 2;
 		cmd->cmd = ft_split_space(argv[cmd_index]);

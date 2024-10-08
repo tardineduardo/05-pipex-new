@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:34:07 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/03 21:49:31 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/08 18:48:25 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,8 @@ static char	*parse_environment_path(char *envp[], char *cmd0)
 
 char	*parse_path(char *envp[], t_cmd *cmd, char *argv[])
 {
+	if (!cmd->cmd)
+		return (NULL);
 	if (cmd->is_environment_path)
 		return (parse_environment_path(envp, cmd->cmd[0]));
 	else if (cmd->is_absolute_path)

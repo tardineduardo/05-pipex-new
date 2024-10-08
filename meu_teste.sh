@@ -52,14 +52,25 @@ else
 fi
 rm $TMP/valgrind_memory_tmp.txt
 
-# Search for the specific PIPE LEAKS in valgrind's output
 valgrind --trace-children=yes --track-fds=yes --leak-check=summary $NAME infile.txt wc "cat -e" outfile.txt &> $TMP/valgrind_pipes_tmp.txt
-if grep "at 0x" $TMP/valgrind_pipes_tmp.txt; then
-    echo -e $RED"[KO] pipes were left open $COLOR_LIMITER(run valgrind --track-fds=yes --trace-children=yes)"$COLOR_LIMITER
+
+# Run Valgrind and save the output
+valgrind --trace-children=yes --track-fds=yes --leak-check=summary $NAME infile.txt wc "cat -e" outfile.txt &> $TMP/valgrind_pipes_tmp.txt
+
+# Check for open file descriptors not inherited from parent
+if awk '/Open file descriptor/ {getline; if ($0 !~ /<inherited from parent>/) {found=1}} END {exit found}' "$TMP/valgrind_pipes_tmp.txt"; then
+    echo -e "${GREEN}[OK] all pipes are closed${COLOR_LIMITER}"
 else
-    echo -e $GREEN"[OK] all pipes are closed"$COLOR_LIMITER
+    echo -e "${RED}[KO] pipes were left open ${COLOR_LIMITER}(run valgrind --track-fds=yes --trace-children=yes)${COLOR_LIMITER}"
 fi
-rm $TMP/valgrind_pipes_tmp.txt
+
+# Clean up the temporary file
+rm -f "$TMP/valgrind_pipes_tmp.txt"
+
+
+
+
+
 
 echo $TMP/exit.txt
 echo $TMP/exit_ref.txt

@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:43:53 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/06 19:06:27 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/08 18:46:07 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,8 @@ static void	ft_fork_and_exec(t_list *l, char *envp[], int fd[])
 		ft_perror_exit("fork", errno);
 	else if (pid == 0)
 	{
-		close(fd[0]);
+		if(!cmd->is_last)
+			close(fd[0]);
 		if (!cmd->path || access(cmd->path, X_OK) != 0)
 		{
 			ft_close_three(fd[1], STDIN_FILENO, STDOUT_FILENO);
@@ -62,11 +63,11 @@ static void	ft_fork_and_exec(t_list *l, char *envp[], int fd[])
 		execve(cmd->path, cmd->cmd, NULL);
 		ft_lclr_err(&l, (void (*)(void *))ft_free_cmd, "execve", errno);
 	}
-	else 
+	else
 	{
 		waitpid(pid, &status, 0);
 		if (cmd->is_last)
-			ft_close_four(fd[0], fd[1], STDIN_FILENO, STDOUT_FILENO);
+			ft_close_two(STDIN_FILENO, STDOUT_FILENO);
 	}
 }
 
@@ -78,8 +79,9 @@ static void	ft_set_pipes_and_run_cmds(t_list *l, char *argv[], char *envp[])
 	t_cmd	*cmd;
 
 	cmd = (t_cmd *)(l->content);
-	if (pipe(fd) == -1)
-		ft_lclr_err_node(&l, (void (*)(void *))ft_free_cmd, "pipe", NULL);
+	if(!cmd->is_last)
+		if (pipe(fd) == -1)
+			ft_lclr_err_node(&l, (void (*)(void *))ft_free_cmd, "pipe", NULL);
 	if (cmd->is_first || cmd->is_unique)
 		in_fd = open(argv[1], O_RDONLY);
 	else

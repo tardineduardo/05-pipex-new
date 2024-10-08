@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:45:07 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/03 17:35:04 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/08 18:50:19 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ typedef struct t_cmd
 {
 	int		ac;
 	int		cmd_index;
+	char	*av;
 	int		pip_index;
 	bool	is_unique;
 	bool	is_mid;
@@ -55,5 +56,6 @@ char	*parse_path(char *envp[], t_cmd *cmd, char *argv[]);
 void	ft_free_cmd(void *content);
 void	ft_lclr_err_node(t_list **l, void (*d)(void*), char *e, t_cmd *c);
 void	ft_lclr_err(t_list **l, void (*d)(void*), char *e, int err);
+void	ft_invalid_cmd(t_list **l, void (*del)(void*), t_cmd *cmd, int errnum);
 
 #endif

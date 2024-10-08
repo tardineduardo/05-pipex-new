@@ -6,11 +6,11 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:43:10 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/02 18:32:41 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/08 18:49:43 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "../../include/bonus/pipex_bonus.h"
 
 void	ft_free_cmd(void *content)
 {
@@ -57,9 +57,6 @@ void	ft_lclr_err(t_list **l, void (*del)(void*), char *e, int err)
 	t_list	*temp1;
 	t_list	*temp2;
 
-	perror(e);
-	if (e == NULL)
-		e = "error parsing command (NULL)";
 	temp1 = *l;
 	while (temp1 != NULL)
 	{
@@ -69,5 +66,29 @@ void	ft_lclr_err(t_list **l, void (*del)(void*), char *e, int err)
 		temp1 = temp2;
 	}
 	*l = NULL;
-	exit(err);
+	ft_error_exit(e, err, 2);
+}
+
+
+void	ft_invalid_cmd(t_list **l, void (*del)(void*), t_cmd *cmd, int errnum)
+{
+	t_list	*temp1;
+	t_list	*temp2;
+
+
+	ft_putstr_fd("command not found: \"", 2);	
+	ft_putstr_fd(cmd->av, 2);
+	ft_putstr_fd("\"\n", 2);
+
+	temp1 = *l;
+	while (temp1 != NULL)
+	{
+		temp2 = temp1->next;
+		(*del)(temp1->content);
+		free(temp1);
+		temp1 = temp2;
+	}
+	*l = NULL;
+
+	exit(errnum);
 }
