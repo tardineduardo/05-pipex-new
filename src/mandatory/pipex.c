@@ -53,21 +53,19 @@ static void	ft_fork_and_exec(t_list *l, char *envp[], int fd[])
 		ft_perror_exit("fork", errno);
 	else if (pid == 0)
 	{
-		if(!cmd->is_last)
-			close(fd[0]);
 		if (!cmd->path || access(cmd->path, X_OK) != 0)
 		{
-			ft_close_three(fd[1], STDIN_FILENO, STDOUT_FILENO);
+			close(fd[1]);
 			ft_invalid_cmd(&l, (void (*)(void *))ft_free_cmd, cmd, 127);
 		}
 		execve(cmd->path, cmd->cmd, NULL);
+		if(!cmd->is_last)
+			close(fd[0]);
 		ft_lclr_err(&l, (void (*)(void *))ft_free_cmd, "execve", errno);
 	}
 	else
 	{
 		waitpid(pid, &status, 0);
-		if (cmd->is_last)
-			ft_close_two(STDIN_FILENO, STDOUT_FILENO);
 	}
 }
 
