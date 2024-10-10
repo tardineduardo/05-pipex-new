@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:42:41 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/06 18:03:52 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/10 17:34:19 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,19 +19,19 @@ void	ft_get_path_type_and_fix_cmd(t_cmd *cmd)
 
 	if (!cmd->cmd)
 		return ;
-	cmd->is_environment_path = false;
-	cmd->is_absolute_path = false;
-	cmd->is_current_directory = false;
-	cmd->is_parent_directory = false;
+	cmd->path_is_environment = false;
+	cmd->path_is_absolute = false;
+	cmd->path_is_curr_dir = false;
+	cmd->path_is_parent_dir = false;
 	if (ft_strnstr(cmd->cmd[0], "/", 1))
-		cmd->is_absolute_path = true;
+		cmd->path_is_absolute = true;
 	else if (ft_strnstr(cmd->cmd[0], "./", 2))
-		cmd->is_current_directory = true;
+		cmd->path_is_curr_dir = true;
 	else if (ft_strnstr(cmd->cmd[0], "../", 3))
-		cmd->is_parent_directory = true;
+		cmd->path_is_parent_dir = true;
 	else
 	{
-		cmd->is_environment_path = true;
+		cmd->path_is_environment = true;
 		return ;
 	}
 	temp = cmd->cmd[0];
@@ -70,6 +70,7 @@ void	fill_commands(int argc, char *argv[], char *envp[], t_list **head)
 		if (!cmd)
 			ft_lclr_err_node(head, del, "malloc error", cmd);
 		ft_get_position(cmd, argc, cmd_index);
+		cmd->infile_is_valid = true;
 		cmd->ac = argc;
 		cmd->av = argv[cmd_index];
 		cmd->cmd_index = cmd_index;

@@ -17,8 +17,8 @@ OBJS_BONUS = ${SRC_BONUS:.c=.o}
 
 CC = cc
 RM = rm -f
-CFLAGS = -g
-#CFLAGS = -Wall -Wextra -Werror -g
+#CFLAGS = -g
+CFLAGS = -Wall -Wextra -Werror -g
 INCLUDE_MAND = -I include/mandatory
 INCLUDE_BONUS = -I include/bonus
 MAKE = make -C

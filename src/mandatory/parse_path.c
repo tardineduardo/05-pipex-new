@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:43:34 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/06 18:15:04 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/10 17:28:06 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ static char	*parse_relative_path(char *envp[], t_cmd *cmd)
 	}	
 	if (!pwd)
 		return (NULL);
-	if (cmd->is_parent_directory)
+	if (cmd->path_is_parent_dir)
 	{
 		ptr = ft_strrchr(pwd, '/');
 		*ptr++ = '\0';
@@ -104,11 +104,11 @@ char	*parse_path(char *envp[], t_cmd *cmd, char *argv[])
 {
 	if (!cmd->cmd)
 		return (NULL);
-	if (cmd->is_environment_path)
+	if (cmd->path_is_environment)
 		return (parse_environment_path(envp, cmd->cmd[0]));
-	else if (cmd->is_absolute_path)
+	else if (cmd->path_is_absolute)
 		return (parse_absolute_path(cmd, argv));
-	else if (cmd->is_current_directory || cmd->is_parent_directory)
+	else if (cmd->path_is_curr_dir || cmd->path_is_parent_dir)
 		return (parse_relative_path(envp, cmd));
 	return (NULL);
 }

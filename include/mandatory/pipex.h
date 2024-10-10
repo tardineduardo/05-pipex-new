@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 18:49:43 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/09 18:07:04 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/10 17:32:03 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,11 @@ typedef struct t_cmd
 	bool	is_mid;
 	bool	is_first;
 	bool	is_last;
-	bool	is_environment_path;
-	bool	is_absolute_path;
-	bool	is_current_directory;
-	bool	is_parent_directory;
+	bool	path_is_environment;
+	bool	path_is_absolute;
+	bool	path_is_curr_dir;
+	bool	path_is_parent_dir;
+	bool	infile_is_valid;
 	int		out_fd;
 	int		in_fd;
 	int		prev_fd;

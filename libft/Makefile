@@ -47,6 +47,7 @@ SRCS =	ft_isalpha.c \
 		ft_close_two.c \
 		ft_close_three.c \
 		ft_close_four.c \
+		ft_perror_extra.c \
 
 BONUS =	ft_lstnew.c \
 		ft_lstadd_front.c \
