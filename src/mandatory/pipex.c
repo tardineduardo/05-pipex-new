@@ -34,7 +34,7 @@ static void	ft_validate_args(int argc, char *argv[])
 		out_err = errno;
 	}
 	// CONTINUAR AQUI
-	ont out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	int out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	close(out);
 }
 
