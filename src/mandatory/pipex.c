@@ -12,31 +12,31 @@
 
 #include "pipex.h"
 
-static void	ft_validate_args(int argc, char *argv[])
-{
-	char	*infile_err;
-	char	*outfile_err;
-	int		in_err;
-	int		out_err;
+// static void	ft_validate_args(int argc, char *argv[])
+// {
+// 	char	*infile_err;
+// 	char	*outfile_err;
+// 	int		in_err;
+// 	int		out_err;
 
-	infile_err = NULL;
-	outfile_err = NULL;
-	if (argc < 4)
-		ft_error_exit("Invalid number of arguments.\n", 1, STDERR_FILENO);
-	if ((access(argv[1], F_OK) != 0) || (access(argv[1], F_OK) != 0))
-	{
-		infile_err = strerror(errno);
-		in_err = errno;
-	}
-	if (access(argv[argc - 1], F_OK) == 0 && access(argv[argc - 1], W_OK) == 0)
-	{
-		outfile_err = strerror(errno);
-		out_err = errno;
-	}
-	// CONTINUAR AQUI
-	int out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	close(out);
-}
+// 	infile_err = NULL;
+// 	outfile_err = NULL;
+// 	if (argc < 4)
+// 		ft_error_exit("Invalid number of arguments.\n", 1, STDERR_FILENO);
+// 	if ((access(argv[1], F_OK) != 0) || (access(argv[1], F_OK) != 0))
+// 	{
+// 		infile_err = strerror(errno);
+// 		in_err = errno;
+// 	}
+// 	if (access(argv[argc - 1], F_OK) == 0 && access(argv[argc - 1], W_OK) == 0)
+// 	{
+// 		outfile_err = strerror(errno);
+// 		out_err = errno;
+// 	}
+// 	// CONTINUAR AQUI
+// 	int out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+// 	close(out);
+// }
 
 static void	ft_validate_file_open(int in_fd, int out_fd, t_list *l, char *av[])
 {
@@ -113,7 +113,7 @@ int	main(int argc, char *argv[], char *envp[])
 	int		status;
 
 	head = NULL;
-	ft_validate_args(argc, argv);
+	//ft_validate_args(argc, argv);
 	fill_commands(argc, argv, envp, &head);
 	trav = head;
 	while (trav != NULL)
