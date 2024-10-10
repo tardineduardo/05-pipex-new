@@ -1,35 +1,59 @@
 #include <fcntl.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 char	**ft_split_space(char *s);
+void	ft_free_str_array(char **array_of_strings);
 
-int main(int argc, char *argv[], char *envp[])
+
+int	main(int argc, char *argv[], char *envp[])
 {
-	char **cmd;
-	cmd = calloc(3, sizeof(char *));
-	// cmd[0] = "cat";
-	// cmd[1] = "-e";
+	char	**cmd;
+	char	**unin;
 
 	cmd = ft_split_space(argv[2]);
 
 	int infile = open(argv[1], O_RDONLY);
-	int outfile = open("out.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	int outfile = open(argv[3], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
 	dup2(infile, STDIN_FILENO);
 	dup2(outfile, STDOUT_FILENO);
 
+	close(infile);
+	close(outfile);
+
 	int pid = fork();
 	if (pid == 0)
-		execve("/usr/bin/cat", cmd, envp);
+	{
+		execve("", unin, envp);
+		printf("error");
+
+	}
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	ft_free_str_array(cmd);
 	wait(NULL);
 }
 
 
 
+void	ft_free_str_array(char **array_of_strings)
+{
+	int	a;
 
+	if (!array_of_strings)
+		return ;
+	a = 0;
+	while (array_of_strings[a])
+	{
+		free(array_of_strings[a]);
+		a++;
+	}
+	free(array_of_strings);
+}
 
 
 

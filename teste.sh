@@ -116,8 +116,8 @@ echo ""
 echo -e $YELLOW_BG"$NO. No input file"$COLOR_LIMITER
 echo ""
 
-PIPEX="$NAME no_file \"cat -e\" \"cat -e\" \"cat -e\" $TMP/${NO}_outfile.txt"
-NORMAL="< no_file cat -e | cat -e | cat -e > $TMP/${NO}_outfile_ref.txt"
+PIPEX="$NAME no_file wc \"cat -e\" \"cat -e\" $TMP/${NO}_outfile.txt"
+NORMAL="< no_file wc | cat -e | cat -e > $TMP/${NO}_outfile_ref.txt"
 
 echo $YELLOW$PIPEX $COLOR_LIMITER 
 eval $PIPEX; echo $? > $TMP/${NO}_exit.txt

@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 18:49:43 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/06 18:12:09 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/09 18:07:04 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,16 @@ typedef struct t_cmd
 	char	**cmd;
 	char	*path;
 }			t_cmd;
+
+
+typedef struct s_f_error
+{
+	char				*file_error_message;
+	int					file_error_number;
+	char				*object;
+	struct s_f_error	*next;
+}						t_f_error;
+
 
 //fill_commands.c
 void	fill_commands(int argc, char *argv[], char *envp[], t_list **head);
