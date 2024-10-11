@@ -1,63 +1,43 @@
-NAME = pipex
+SRC =	src/pipex.c \
+	src/parse_path.c \
+	src/free_memory.c \
+	src/fill_commands.c \
+	src/inutils.c \
 
-SRC_MAND = \
-	src/mandatory/pipex.c \
-	src/mandatory/parse_path.c \
-	src/mandatory/free_memory.c \
-	src/mandatory/fill_commands.c \
+BONUS =	src/pipex_bonus.c \
 
-SRC_BONUS = \
-	src/bonus/pipex_bonus.c \
-	src/bonus/parse_path_bonus.c \
-	src/bonus/free_memory_bonus.c \
-	src/bonus/fill_commands_bonus.c \
-
-OBJS_MAND = ${SRC_MAND:.c=.o}
-OBJS_BONUS = ${SRC_BONUS:.c=.o}
+OBJS = $(SRC:.c=.o)
 
 CC = cc
 RM = rm -f
-#CFLAGS = -g
-CFLAGS = -Wall -Wextra -Werror -g
-INCLUDE_MAND = -I include/mandatory
-INCLUDE_BONUS = -I include/bonus
-MAKE = make -C
-LIBFT_PATH = libft
-LIBFT = -L ${LIBFT_PATH} -lft
+CFLAGS = -Wall -Wextra -Werror
 
-.c.o:
-	${CC} ${CFLAGS} ${INCLUDE_MAND} -c $< -o ${<:.c=.o}
+NAME = pipex
 
-src/bonus/%.o: src/bonus/%_bonus.c
-	${CC} ${CFLAGS} ${INCLUDE_BONUS} -c $< -o $@
+LIBFT_PATH = ./libft
+
+LIBFT = $(LIBFT_PATH)/libft.a
 
 all: $(NAME)
 
-$(NAME): ${OBJS_MAND}
-	${MAKE} ${LIBFT_PATH} all
-	${CC} ${OBJS_MAND} ${LIBFT} -o ${NAME}
+$(NAME): $(OBJS) $(LIBFT)
+	cp $(LIBFT) $(NAME)
+	ar rfc $(NAME) $(OBJS)
 
-bonus: ${OBJS_BONUS}
-	${MAKE} ${LIBFT_PATH} all
-	${CC} ${OBJS_BONUS} ${LIBFT} -o ${NAME}
+$(LIBFT):
+	$(MAKE) -C $(LIBFT_PATH) all
+
+%.o: %.c ft_printf.h
+	$(CC) $(CFLAGS) -g -c $< -o $@
 
 clean:
-	${MAKE} ${LIBFT_PATH} clean
-	${RM} ${OBJS_MAND} ${OBJS_BONUS}
+	$(RM) $(OBJS)
+	$(MAKE) -C $(LIBFT_PATH) clean
 
 fclean: clean
-	${MAKE} ${LIBFT_PATH} fclean
-	${RM} ${NAME}
+	$(MAKE) -C $(LIBFT_PATH) fclean
+	$(RM) $(NAME)
 
 re: fclean all
 
-# valgrind: all
-# 	valgrind \
-#     --leak-check=full \
-#     --suppressions=suppression.supp \
-#     --show-leak-kinds=all \
-#     --trace-children=yes --track-fds=yes \
-#     ./$(NAME)
-
-
-.PHONY: all bonus clean fclean re
+.PHONY: all clean fclean re

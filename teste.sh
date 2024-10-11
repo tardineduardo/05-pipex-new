@@ -23,11 +23,14 @@ touch no_read_perm.txt
 chmod -r no_read_perm.txt
 
 # Compile the program
-#make
+make
 
 NO=00
 
-# START ---------------------------------------------------------------------------
+################################################################################
+################################################################################
+################################################################################
+# START ------------------------------------------------------------------------
 
 ((NO++))
 echo ""
@@ -64,52 +67,23 @@ else
     echo -e "${RED}[KO] pipes were left open${COLOR_LIMITER}\t(run valgrind --track-fds=yes --trace-children=yes)${COLOR_LIMITER}"
 fi
 
-echo ""
-
-# START ---------------------------------------------------------------------------
-
-((NO++))
-echo ""
-echo -e $YELLOW_BG"$NO. Success case"$COLOR_LIMITER
-echo ""
-
-PIPEX="$NAME infile.txt \"cat -e\" \"cat -e\" \"cat -e\" $TMP/${NO}_outfile.txt"
-NORMAL="< infile.txt cat -e | cat -e | cat -e > $TMP/${NO}_outfile_ref.txt"
-
-echo $YELLOW$PIPEX $COLOR_LIMITER 
-eval $PIPEX; echo $? > $TMP/${NO}_exit.txt
-echo $YELLOW$NORMAL $COLOR_LIMITER
-eval $NORMAL; echo $? > $TMP/${NO}_exit_ref.txt
-echo ""
-if diff $TMP/${NO}_outfile.txt $TMP/${NO}_outfile_ref.txt > /dev/null; then
-    echo -e $GREEN"[OK] out files match"$COLOR_LIMITER;
-else 
-    echo -e $RED"[KO] out files don't match"$COLOR_LIMITER; 
-fi
-
-# Run valgrind checking memory leaks
-eval valgrind --trace-children=yes --leak-check=summary $PIPEX &> $TMP/${NO}_valgrind_memory.txt
-if grep -q "Rerun with --leak-check=full to see details of leaked memory" $TMP/${NO}_valgrind_memory.txt; then
-    echo -e $RED"[KO] check memory leaks$COLOR_LIMITER\t\t(run valgrind --trace-children=yes)"
+# Run strace to identifiy issues
+eval strace -f -o $TMP/${NO}_valgrind_trace.txt $PIPEX &> $TMP/${NO}_valgrind_trace.txt
+if grep -q "EBADF" $TMP/${NO}_valgrind_trace.txt; then
+	echo -e "${RED}[KO] Trace raises EBADF errors${COLOR_LIMITER}\t(run strace -f)"
 else
-    echo -e $GREEN"[OK] no memory leaks"$COLOR_LIMITER
+    echo -e "${GREEN}[OK] No EBADF erros on strace${COLOR_LIMITER}"
 fi
-
-# Run valgrind with pipe tracking
-eval valgrind --trace-children=yes --track-fds=yes $PIPEX &> $TMP/${NO}_valgrind_pipes.txt
-if awk '/Open file descriptor/ {getline; if ($0 !~ /<inherited from parent>/) {found=1}} END {exit found}' "$TMP/${NO}_valgrind_pipes.txt"; then
-    echo -e "${GREEN}[OK] all pipes are closed${COLOR_LIMITER}"
-else
-    echo -e "${RED}[KO] pipes were left open${COLOR_LIMITER}\t(run valgrind --track-fds=yes --trace-children=yes)${COLOR_LIMITER}"
-fi
-
-
-
+echo -e "your exit code:\t\t$(cat $TMP/${NO}_exit.txt)"
+echo -e "expected exit code:\t$(cat $TMP/${NO}_exit_ref.txt)"
 echo ""
 
 
 
-# START ---------------------------------------------------------------------------
+################################################################################
+################################################################################
+################################################################################
+# START ------------------------------------------------------------------------
 
 ((NO++))
 echo ""
@@ -146,66 +120,127 @@ else
     echo -e "${RED}[KO] pipes were left open${COLOR_LIMITER}\t(run valgrind --track-fds=yes --trace-children=yes)${COLOR_LIMITER}"
 fi
 
+# Run strace to identifiy issues
+eval strace -f -o $TMP/${NO}_valgrind_trace.txt $PIPEX &> $TMP/${NO}_valgrind_trace.txt
+if grep -q "EBADF" $TMP/${NO}_valgrind_trace.txt; then
+	echo -e "${RED}[KO] Trace raises EBADF errors${COLOR_LIMITER}\t(run strace -f)"
+else
+    echo -e "${GREEN}[OK] No EBADF erros on strace${COLOR_LIMITER}"
+fi
 
-
+echo -e "your exit code:\t\t$(cat $TMP/${NO}_exit.txt)"
+echo -e "expected exit code:\t$(cat $TMP/${NO}_exit_ref.txt)"
 echo ""
 
 
+################################################################################
+################################################################################
+################################################################################
+# START ------------------------------------------------------------------------
 
-# ((TEST_NO++))
-# echo -e $YELLOW_BG"$TEST_NO. Non-existent input file"$COLOR_LIMITER
-# $NAME non_existent_file "cat" "grep call" $TMP/outfile.txt; echo $? > $TMP/exit.txt
-# < non_existent_file cat | grep call > $TMP/outfile_ref.txt; echo $? > $TMP/exit_ref.txt
-# if diff $TMP/outfile.txt $TMP/outfile_ref.txt && diff $TMP/exit.txt $TMP/exit_ref.txt; then 
-# 	echo -e $GREEN"[OK]"$COLOR_LIMITER; 
+((NO++))
+echo ""
+echo -e $YELLOW_BG"$NO. No access for output file"$COLOR_LIMITER
+echo ""
+
+PIPEX="$NAME infile.txt wc \"cat -e\" no_read_perm.txt"
+NORMAL="< infile.txt wc | cat -e > no_read_perm.txt"
+
+echo $YELLOW$PIPEX $COLOR_LIMITER 
+eval $PIPEX; echo $? > $TMP/${NO}_exit.txt
+echo $YELLOW$NORMAL $COLOR_LIMITER
+eval $NORMAL; echo $? > $TMP/${NO}_exit_ref.txt
+echo ""
+if diff $TMP/${NO}_outfile.txt $TMP/${NO}_outfile_ref.txt > /dev/null; then
+    echo -e $GREEN"[OK] out files match"$COLOR_LIMITER;
+else 
+    echo -e $RED"[KO] out files don't match"$COLOR_LIMITER; 
+fi
+
+# Run valgrind checking memory leaks
+eval valgrind --trace-children=yes --leak-check=summary $PIPEX &> $TMP/${NO}_valgrind_memory.txt
+if grep -q "Rerun with --leak-check=full to see details of leaked memory" $TMP/${NO}_valgrind_memory.txt; then
+    echo -e $RED"[KO] check memory leaks$COLOR_LIMITER\t\t(run valgrind --trace-children=yes)"
+else
+    echo -e $GREEN"[OK] no memory leaks"$COLOR_LIMITER
+fi
+
+# Run valgrind with pipe tracking
+eval valgrind --trace-children=yes --track-fds=yes $PIPEX &> $TMP/${NO}_valgrind_pipes.txt
+if awk '/Open file descriptor/ {getline; if ($0 !~ /<inherited from parent>/) {found=1}} END {exit found}' "$TMP/${NO}_valgrind_pipes.txt"; then
+    echo -e "${GREEN}[OK] all pipes are closed${COLOR_LIMITER}"
+else
+    echo -e "${RED}[KO] pipes were left open${COLOR_LIMITER}\t(run valgrind --track-fds=yes --trace-children=yes)${COLOR_LIMITER}"
+fi
+
+# Run strace to identifiy issues
+eval strace -f -o $TMP/${NO}_valgrind_trace.txt $PIPEX &> $TMP/${NO}_valgrind_trace.txt
+if grep -q "EBADF" $TMP/${NO}_valgrind_trace.txt; then
+	echo -e "${RED}[KO] Trace raises EBADF errors${COLOR_LIMITER}\t(run strace -f)"
+else
+    echo -e "${GREEN}[OK] No EBADF erros on strace${COLOR_LIMITER}"
+fi
+
+echo -e "your exit code:\t\t$(cat $TMP/${NO}_exit.txt)"
+echo -e "expected exit code:\t$(cat $TMP/${NO}_exit_ref.txt)"
+echo ""
+
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+
+# make bonus
+
+
+# ((NO++))
+# echo ""
+# echo -e $YELLOW_BG"$NO. Success case"$COLOR_LIMITER
+# echo ""
+
+# PIPEX="$NAME infile.txt \"cat -e\" \"cat -e\" \"cat -e\" $TMP/${NO}_outfile.txt"
+# NORMAL="< infile.txt cat -e | cat -e | cat -e > $TMP/${NO}_outfile_ref.txt"
+
+# echo $YELLOW$PIPEX $COLOR_LIMITER 
+# eval $PIPEX; echo $? > $TMP/${NO}_exit.txt
+# echo $YELLOW$NORMAL $COLOR_LIMITER
+# eval $NORMAL; echo $? > $TMP/${NO}_exit_ref.txt
+# echo ""
+# if diff $TMP/${NO}_outfile.txt $TMP/${NO}_outfile_ref.txt > /dev/null; then
+#     echo -e $GREEN"[OK] out files match"$COLOR_LIMITER;
 # else 
-# 	echo -e $RED"[KO]"$COLOR_LIMITER; 
+#     echo -e $RED"[KO] out files don't match"$COLOR_LIMITER; 
 # fi
 
-# ((TEST_NO++))
-# echo -e $YELLOW_BG"$TEST_NO. Infile with no read permission"$COLOR_LIMITER
-# $NAME $TMP/no_read_perm.txt "cat" "grep call" $TMP/outfile.txt; echo $? > $TMP/exit.txt
-# < $TMP/no_read_perm.txt | grep call > $TMP/outfile_ref.txt; echo $? > $TMP/exit_ref.txt
-# if diff $TMP/outfile.txt $TMP/outfile_ref.txt && diff $TMP/exit.txt $TMP/exit_ref.txt; then 
-# 	echo -e $GREEN"[OK]"$COLOR_LIMITER; 
-# else 
-# 	echo -e $RED"[KO]"$COLOR_LIMITER; 
+# # Run valgrind checking memory leaks
+# eval valgrind --trace-children=yes --leak-check=summary $PIPEX &> $TMP/${NO}_valgrind_memory.txt
+# if grep -q "Rerun with --leak-check=full to see details of leaked memory" $TMP/${NO}_valgrind_memory.txt; then
+#     echo -e $RED"[KO] check memory leaks$COLOR_LIMITER\t\t(run valgrind --trace-children=yes)"
+# else
+#     echo -e $GREEN"[OK] no memory leaks"$COLOR_LIMITER
 # fi
 
-# ((TEST_NO++))
-# echo -e $YELLOW_BG"$TEST_NO. Non-existent cmd1"$COLOR_LIMITER
-# $NAME $TMP/infile.txt "non_existent_cmd1" "grep COLS" $TMP/outfile.txt; echo $? > $TMP/exit.txt
-# < $TMP/infile.txt non_existent_cmd1 | grep COLS > $TMP/outfile_ref.txt; echo $? > $TMP/exit_ref.txt
-# if diff $TMP/outfile.txt $TMP/outfile_ref.txt && diff $TMP/exit.txt $TMP/exit_ref.txt; then 
-# 	echo -e $GREEN"[OK]"$COLOR_LIMITER; 
-# else 
-# 	echo -e $RED"[KO]"$COLOR_LIMITER; 
+# # Run valgrind with pipe tracking
+# eval valgrind --trace-children=yes --track-fds=yes $PIPEX &> $TMP/${NO}_valgrind_pipes.txt
+# if awk '/Open file descriptor/ {getline; if ($0 !~ /<inherited from parent>/) {found=1}} END {exit found}' "$TMP/${NO}_valgrind_pipes.txt"; then
+#     echo -e "${GREEN}[OK] all pipes are closed${COLOR_LIMITER}"
+# else
+#     echo -e "${RED}[KO] pipes were left open${COLOR_LIMITER}\t(run valgrind --track-fds=yes --trace-children=yes)${COLOR_LIMITER}"
 # fi
 
-# ((TEST_NO++))
-# echo -e $YELLOW_BG"$TEST_NO. Non-existent cmd2"$COLOR_LIMITER
-# $NAME $TMP/infile.txt "cat" "non_existent_cmd2" $TMP/outfile.txt > /dev/null 2>&1; echo $? > $TMP/exit.txt
-# < $TMP/infile.txt cat | "non_existent_cmd2" > $TMP/outfile_ref.txt; echo $? > $TMP/exit_ref.txt
-# if diff $TMP/outfile.txt $TMP/outfile_ref.txt && diff $TMP/exit.txt $TMP/exit_ref.txt; then 
-# 	echo -e $GREEN"[OK]"$COLOR_LIMITER; 
-# else 
-# 	echo -e $RED"[KO]"$COLOR_LIMITER; 
+# # Run strace to identifiy issues
+# eval strace -f -o $TMP/${NO}_valgrind_trace.txt $PIPEX &> $TMP/${NO}_valgrind_trace.txt
+# if grep -q "EBADF" $TMP/${NO}_valgrind_trace.txt; then
+# 	echo -e "${RED}[KO] Trace raises EBADF errors${COLOR_LIMITER}\t(run strace -f)"
+# else
+#     echo -e "${GREEN}[OK] No EBADF erros on strace${COLOR_LIMITER}"
 # fi
 
-# ((TEST_NO++))
-# echo -e $YELLOW_BG"$TEST_NO. Invalid outfile"$COLOR_LIMITER
-# $NAME $TMP/infile.txt "cat" "echo hello" /etc/passwd; echo $? > $TMP/exit.txt
-# < $TMP/infile.txt cat | grep call > /etc/passwd; echo $? > $TMP/exit_ref.txt
-# if diff $TMP/outfile.txt $TMP/outfile_ref.txt && diff $TMP/exit.txt $TMP/exit_ref.txt; then 
-# 	echo -e $GREEN"[OK]"$COLOR_LIMITER; 
-# else 
-# 	echo -e $RED"[KO]"$COLOR_LIMITER; 
-# fi
+# echo -e "your exit code:\t\t$(cat $TMP/${NO}_exit.txt)"
+# echo -e "expected exit code:\t$(cat $TMP/${NO}_exit_ref.txt)"
 
-
-
-
-rm infile.txt
-chmod 0777 no_read_perm.txt
-rm no_read_perm.txt
-#rm tests -r
+# echo ""

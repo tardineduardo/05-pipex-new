@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 17:02:36 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/10 14:52:18 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/11 17:05:31 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,5 @@ void	ft_putstrarr_fd(char **s, int fd);
 void	ft_lstclear_err_exit(t_list **lst, void (*del)(void*), char *e, int n);
 void	*ft_lstclear_null(t_list **lst, void (*del)(void*));
 void	ft_perror_extra(char *extra_argument, char *normal_perror);
-
 
 #endif

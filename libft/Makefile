@@ -41,7 +41,6 @@ SRCS =	ft_isalpha.c \
 		ft_concatenate_var.c \
 		ft_close.c \
 		ft_putstrarr_fd.c \
-		ft_lstclear_err_exit.c \
 		ft_lstclear_null.c \
 		ft_lstclear_err_exit.c \
 		ft_close_two.c \

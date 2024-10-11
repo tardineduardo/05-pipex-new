@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:33:29 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/10 17:56:53 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/11 17:34:09 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,69 +39,41 @@ static void	ft_validate_args(int argc, char *argv[])
 		exit(out_err);
 }
 
-/*
-the files were already validated at the start of the program.
-this function is only meant to protect open.
-*/
-static void	ft_protect_file_open(int in_fd, int out_fd, t_list *l, char *av[])
-{
-	int		ac;
-	t_cmd	*cmd;
-
-	cmd = (t_cmd *)(l->content);
-	ac = cmd->ac;
-	if (in_fd == -1)
-		cmd->infile_is_valid = false;
-	if (out_fd == -1)
-		ft_lclr_err_node(&l, (void (*)(void *))ft_free_cmd, av[ac - 1], NULL);
-
-}
-
-static void	ft_fork_and_exec(t_list *l, char *envp[], int fd[])
+static void	ft_fork_and_exec(t_list *c_lst, char *envp[], int fd[])
 {
 	int		pid;
 	t_cmd	*cmd;
 
-	cmd = (t_cmd *)(l->content);
+	cmd = (t_cmd *)(c_lst->content);
 	pid = fork();
 	if (pid == -1)
-		ft_perror_exit("fork", errno);
+		ft_clear_list_exit(&c_lst, "fork", errno, NULL);
 	else if (pid == 0)
 	{
 		if (!cmd->path || access(cmd->path, X_OK) != 0)
-		{
-			close(fd[1]);
-			ft_invalid_cmd(&l, (void (*)(void *))ft_free_cmd, cmd, 127);
-		}
-		if (!cmd->infile_is_valid)
-		{
-			//ft_lstclear(&l, (void (*)(void *))ft_free_cmd);
-			close(fd[1]);
-			exit (0);
-		}
-		execve(cmd->path, cmd->cmd, envp); // ATENCAO, PAROU DE DAR ERRO QUANDO USEI NULL EM ENVP
+			ft_skip_cmd_exit(&c_lst, cmd->cmd[0], 127, fd);
+		else if (cmd->infile_invalid)
+			ft_skip_cmd_exit(&c_lst, NULL, 0, fd);
+		execve(cmd->path, cmd->cmd, envp);
 		if (!cmd->is_last)
 			close(fd[0]);
-		ft_lclr_err(&l, (void (*)(void *))ft_free_cmd, "execve", errno);
+		ft_clear_list_exit(&c_lst, "execve", errno, NULL);
 	}
-	else
-	{
-		if (cmd->is_last)
-			ft_close_two(STDIN_FILENO, STDOUT_FILENO);
-	}
+	if (cmd->is_last || cmd->is_unique)
+		ft_close_two(STDIN_FILENO, STDOUT_FILENO);
 }
 
-static void	ft_set_pipes_and_run_cmds(t_list *l, char *argv[], char *envp[])
+static int	ft_set_pipes_run_cmds(t_list *c_lst, char *argv[], char *envp[])
 {
 	int		in_fd;
 	int		out_fd;
 	int		fd[2];
 	t_cmd	*cmd;
 
-	cmd = (t_cmd *)(l->content);
-	if (!cmd->is_last )
+	cmd = (t_cmd *)(c_lst->content);
+	if (!cmd->is_last && !cmd->is_unique)
 		if (pipe(fd) == -1)
-			ft_lclr_err_node(&l, (void (*)(void *))ft_free_cmd, "pipe", NULL);
+			ft_clear_list_exit(&c_lst, "pipe", errno, NULL);
 	if (cmd->is_first || cmd->is_unique)
 		in_fd = open(argv[1], O_RDONLY);
 	else
@@ -110,13 +82,13 @@ static void	ft_set_pipes_and_run_cmds(t_list *l, char *argv[], char *envp[])
 		out_fd = fd[1];
 	else
 		out_fd = open(argv[(cmd->ac) - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	ft_protect_file_open(in_fd, out_fd, l, argv);
-	dup2(in_fd, STDIN_FILENO);
-	dup2(out_fd, STDOUT_FILENO);
-	ft_close_two(in_fd, out_fd);
-	ft_fork_and_exec(l, envp, fd);
+	if (ft_protect_fopen(in_fd, out_fd, c_lst, argv) == -1)
+		return (ft_skip(&c_lst, fd));
+	ft_dup2_and_close(in_fd, out_fd);
+	ft_fork_and_exec(c_lst, envp, fd);
 	if (cmd->is_first || cmd->is_mid)
-		((t_cmd *)(l->next->content))->prev_fd = fd[0];
+		((t_cmd *)(c_lst->next->content))->prev_fd = fd[0];
+	return (0);
 }
 
 int	main(int argc, char *argv[], char *envp[])
@@ -131,10 +103,10 @@ int	main(int argc, char *argv[], char *envp[])
 	trav = head;
 	while (trav != NULL)
 	{
-		ft_set_pipes_and_run_cmds(trav, argv, envp);
+		ft_set_pipes_run_cmds(trav, argv, envp);
 		trav = trav->next;
 	}
-	//ft_lstclear(&head, (void (*)(void *))ft_free_cmd);
+	ft_lstclear(&head, (void (*)(void *))ft_free_cmd);
 	while (wait(&status) > 0)
 		NULL;
 	return (0);

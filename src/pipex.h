@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 18:49:43 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/10 17:32:03 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/11 17:26:53 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,13 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <unistd.h>
-# include "../../libft/libft.h"
+# include "../libft/libft.h"
 
 typedef struct t_cmd
 {
 	int		ac;
 	int		cmd_index;
 	char	*av;
-	int		pip_index;
 	bool	is_unique;
 	bool	is_mid;
 	bool	is_first;
@@ -39,7 +38,7 @@ typedef struct t_cmd
 	bool	path_is_absolute;
 	bool	path_is_curr_dir;
 	bool	path_is_parent_dir;
-	bool	infile_is_valid;
+	bool	infile_invalid;
 	int		out_fd;
 	int		in_fd;
 	int		prev_fd;
@@ -47,26 +46,21 @@ typedef struct t_cmd
 	char	*path;
 }			t_cmd;
 
-
-typedef struct s_f_error
-{
-	char				*file_error_message;
-	int					file_error_number;
-	char				*object;
-	struct s_f_error	*next;
-}						t_f_error;
-
-
-//fill_commands.c
+/* fill_commands.c */
 void	fill_commands(int argc, char *argv[], char *envp[], t_list **head);
 
-//parse_path.c
+/* parse_path.c */
 char	*parse_path(char *envp[], t_cmd *cmd, char *argv[]);
 
-//free_memory.c
+/* free_memorty.c */
 void	ft_free_cmd(void *content);
-void	ft_lclr_err_node(t_list **l, void (*d)(void*), char *e, t_cmd *c);
-void	ft_lclr_err(t_list **l, void (*d)(void*), char *e, int err);
-void	ft_invalid_cmd(t_list **l, void (*del)(void*), t_cmd *cmd, int errnum);
+void	ft_clear_list_exit(t_list **c_lst, char *err, int errnum, t_cmd *c);
+void	ft_skip_cmd_exit(t_list **c_lst, char *err, int errnum, int fd[]);
+void	ft_exit_bad_lstcmd(t_list **c_lst, char *err, int errnum, t_cmd *curr);
+
+/* inutils.c */
+int		ft_protect_fopen(int in_fd, int out_fd, t_list *c_lst, char *av[]);
+void	ft_dup2_and_close(int in_fd, int out_fd);
+int		ft_skip(t_list **c_lst, int fd[]);
 
 #endif

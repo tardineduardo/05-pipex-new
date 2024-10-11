@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:43:10 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/06 18:55:01 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/11 17:34:46 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,68 +27,75 @@ void	ft_free_cmd(void *content)
 		free(cmd);
 }
 
-void	ft_lclr_err_node(t_list **l, void (*del)(void*), char *e, t_cmd *curr)
+void	ft_clear_list_exit(t_list **c_lst, char *err, int errnum, t_cmd *curr)
 {
 	t_list	*temp1;
 	t_list	*temp2;
 
-	if (l == NULL || *l == NULL)
+	if (c_lst == NULL || *c_lst == NULL)
 	{
-		perror(e);
+		perror(err);
 		ft_free_cmd(curr);
-		exit(0);
+		exit(errnum);
 	}
-	temp1 = *l;
+	temp1 = *c_lst;
 	while (temp1 != NULL)
 	{
 		temp2 = temp1->next;
-		(*del)(temp1->content);
+		ft_free_cmd(temp1->content);
 		free(temp1);
 		temp1 = temp2;
 	}
-	*l = NULL;
-	perror(e);
+	*c_lst = NULL;
+	perror(err);
 	ft_free_cmd(curr);
-	exit(0);
+	exit(errnum);
 }
 
-void	ft_lclr_err(t_list **l, void (*del)(void*), char *e, int err)
+void	ft_exit_bad_lstcmd(t_list **c_lst, char *err, int errnum, t_cmd *curr)
 {
 	t_list	*temp1;
 	t_list	*temp2;
 
-	temp1 = *l;
+	ft_putstr_fd("./pipex: ", STDERR_FILENO);
+	ft_putstr_fd("\"", STDERR_FILENO);
+	ft_putstr_fd(err, STDERR_FILENO);
+	ft_putstr_fd("\" :", STDERR_FILENO);
+	ft_putstr_fd("command not found\n", STDERR_FILENO);
+	temp1 = *c_lst;
 	while (temp1 != NULL)
 	{
 		temp2 = temp1->next;
-		(*del)(temp1->content);
+		ft_free_cmd(temp1->content);
 		free(temp1);
 		temp1 = temp2;
 	}
-	*l = NULL;
-	ft_error_exit(e, err, 2);
+	*c_lst = NULL;
+	ft_free_cmd(curr);
+	exit(errnum);
 }
 
-
-void	ft_invalid_cmd(t_list **l, void (*del)(void*), t_cmd *cmd, int errnum)
+void	ft_skip_cmd_exit(t_list **c_lst, char *err, int errnum, int fd[])
 {
 	t_list	*temp1;
 	t_list	*temp2;
 
-
-	ft_putstr_fd("command not found: \"", 2);	
-	ft_putstr_fd(cmd->av, 2);
-	ft_putstr_fd("\"\n", 2);
-
-	temp1 = *l;
+	if (err)
+	{
+		ft_putstr_fd(err, STDERR_FILENO);
+		ft_putstr_fd(": command not found\n", STDERR_FILENO);
+	}
+	temp1 = *c_lst;
 	while (temp1 != NULL)
 	{
 		temp2 = temp1->next;
-		(*del)(temp1->content);
+		ft_free_cmd(temp1->content);
 		free(temp1);
 		temp1 = temp2;
 	}
-	*l = NULL;
-
+	*c_lst = NULL;
+	close(fd[0]);
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
 	exit(errnum);
 }

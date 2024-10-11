@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/01 15:18:57 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/06 17:44:46 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/11 17:03:10 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,11 +101,12 @@ char	**ft_split_space(char *s)
 
 	set = " \t";
 	total_substrs = c_substrs((char *)s, set);
-
 	if (total_substrs == 0)
 	{
-		return (NULL);
-	}	
+		results = ft_calloc(2, sizeof(char *));
+		results[0] = ft_calloc(1, sizeof(char *));
+		return (results);
+	}
 	results = ft_calloc((total_substrs + 1), sizeof(char *));
 	if (results == NULL)
 		return (NULL);
