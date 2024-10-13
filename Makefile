@@ -18,7 +18,6 @@ BONUS_NAME = pipex_bonus
 LIBFT_PATH = ./libft
 LIBFT = $(LIBFT_PATH)/libft.a
 
-# Find all .c files in the libft directory and track their changes
 LIBFT_SRC = $(wildcard $(LIBFT_PATH)/*.c)
 
 all: $(NAME)
