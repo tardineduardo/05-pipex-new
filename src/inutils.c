@@ -20,7 +20,7 @@ int	ft_protect_fopen(int in_fd, int out_fd, t_list *c_lst, char *av[])
 	cmd = (t_cmd *)(c_lst->content);
 	ac = cmd->ac;
 	if (out_fd == -1)
-		ft_clear_list_exit(&c_lst, av[ac - 1], errno, NULL);
+		ft_clear_list_exit(&c_lst, av[ac - 1], errno, NULL); // AQUI TEM LEAK
 	if (in_fd == -1)
 	{		
 		cmd->infile_invalid = true;

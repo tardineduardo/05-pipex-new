@@ -10,7 +10,7 @@ OBJS_BONUS = $(BONUS:.c=.o) $(UTILS:.c=.o)
 
 CC = cc
 RM = rm -f
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g
 
 NAME = pipex
 BONUS_NAME = pipex_bonus

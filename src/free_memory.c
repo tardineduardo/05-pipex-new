@@ -27,18 +27,18 @@ void	ft_free_cmd(void *content)
 		free(cmd);
 }
 
-void	ft_clear_list_exit(t_list **c_lst, char *err, int errnum, t_cmd *curr)
+void	ft_clear_list_exit(t_list **head, char *err, int errnum, t_cmd *curr)
 {
 	t_list	*temp1;
 	t_list	*temp2;
 
-	if (c_lst == NULL || *c_lst == NULL)
+	if (head == NULL || *head == NULL)
 	{
 		perror(err);
 		ft_free_cmd(curr);
 		exit(errnum);
 	}
-	temp1 = *c_lst;
+	temp1 = *head;
 	while (temp1 != NULL)
 	{
 		temp2 = temp1->next;
@@ -46,23 +46,23 @@ void	ft_clear_list_exit(t_list **c_lst, char *err, int errnum, t_cmd *curr)
 		free(temp1);
 		temp1 = temp2;
 	}
-	*c_lst = NULL;
+	*head = NULL;
 	perror(err);
 	ft_free_cmd(curr);
 	exit(errnum);
 }
 
-void	ft_exit_bad_lstcmd(t_list **c_lst, char *err, int errnum, t_cmd *curr)
+void	ft_exit_bad_lstcmd(t_list **head, char *err, int errnum, t_cmd *curr)
 {
 	t_list	*temp1;
 	t_list	*temp2;
 
-	ft_putstr_fd("./pipex: ", STDERR_FILENO);
+	ft_putstr_fd("pipex: ", STDERR_FILENO);
 	ft_putstr_fd("\"", STDERR_FILENO);
 	ft_putstr_fd(err, STDERR_FILENO);
-	ft_putstr_fd("\" :", STDERR_FILENO);
+	ft_putstr_fd("\": ", STDERR_FILENO);
 	ft_putstr_fd("command not found\n", STDERR_FILENO);
-	temp1 = *c_lst;
+	temp1 = *head;
 	while (temp1 != NULL)
 	{
 		temp2 = temp1->next;
@@ -70,12 +70,12 @@ void	ft_exit_bad_lstcmd(t_list **c_lst, char *err, int errnum, t_cmd *curr)
 		free(temp1);
 		temp1 = temp2;
 	}
-	*c_lst = NULL;
+	*head = NULL;
 	ft_free_cmd(curr);
 	exit(errnum);
 }
 
-void	ft_skip_cmd_exit(t_list **c_lst, char *err, int errnum, int fd[])
+void	ft_skip_cmd_exit(t_list **head, char *err, int errnum, int fd[])
 {
 	t_list	*temp1;
 	t_list	*temp2;
@@ -85,7 +85,7 @@ void	ft_skip_cmd_exit(t_list **c_lst, char *err, int errnum, int fd[])
 		ft_putstr_fd(err, STDERR_FILENO);
 		ft_putstr_fd(": command not found\n", STDERR_FILENO);
 	}
-	temp1 = *c_lst;
+	temp1 = *head;
 	while (temp1 != NULL)
 	{
 		temp2 = temp1->next;
@@ -93,8 +93,9 @@ void	ft_skip_cmd_exit(t_list **c_lst, char *err, int errnum, int fd[])
 		free(temp1);
 		temp1 = temp2;
 	}
-	*c_lst = NULL;
+	*head = NULL;
 	close(fd[0]);
+	close(fd[1]);
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
 	exit(errnum);
