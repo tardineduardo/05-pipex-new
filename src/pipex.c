@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:33:29 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/13 19:17:38 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/13 19:18:44 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static void	ft_validate_args(int argc, char *argv[])
 
 	out_err = 0;
 	in_err = 0;
-	if (argc < 4)
+	if (argc != 5)
 		ft_error_exit("Invalid number of arguments.\n", 1, STDERR_FILENO);
 	if ((access(argv[1], F_OK) != 0) || (access(argv[1], R_OK) != 0))
 	{
