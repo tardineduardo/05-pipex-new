@@ -6,21 +6,19 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 16:12:09 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/11 17:34:37 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/13 16:34:49 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-int	ft_protect_fopen(int in_fd, int out_fd, t_list *c_lst, char *av[])
+int	ft_protect_fopen(int in_fd, int out_fd, t_list *h, t_cmd *cmd)
 {
 	int		ac;
-	t_cmd	*cmd;
 
-	cmd = (t_cmd *)(c_lst->content);
 	ac = cmd->ac;
 	if (out_fd == -1)
-		ft_clear_list_exit(&c_lst, av[ac - 1], errno, NULL); // AQUI TEM LEAK
+		ft_clear_list_exit(&h, &cmd->av[ac - 1], errno, NULL);
 	if (in_fd == -1)
 	{		
 		cmd->infile_invalid = true;

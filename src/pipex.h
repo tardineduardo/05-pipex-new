@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 18:49:43 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/11 17:26:53 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/13 16:31:59 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void	ft_skip_cmd_exit(t_list **c_lst, char *err, int errnum, int fd[]);
 void	ft_exit_bad_lstcmd(t_list **c_lst, char *err, int errnum, t_cmd *curr);
 
 /* inutils.c */
-int		ft_protect_fopen(int in_fd, int out_fd, t_list *c_lst, char *av[]);
+int		ft_protect_fopen(int in_fd, int out_fd, t_list *head, t_cmd *cmd);
 void	ft_dup2_and_close(int in_fd, int out_fd);
 int		ft_skip(t_list **c_lst, int fd[]);
 

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.c                                            :+:      :+:    :+:   */
+/*   pipex_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:33:29 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/11 17:34:09 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/13 16:35:38 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ static void	ft_validate_args(int argc, char *argv[])
 		exit(out_err);
 }
 
-static void	ft_fork_and_exec(t_list *head, t_list *c_lst, char *envp[], int fd[])
+static void	ft_fork_exec(t_list *head, t_list *c_lst, char *envp[], int fd[])
 {
 	int		pid;
 	t_cmd	*cmd;
@@ -58,31 +58,31 @@ static void	ft_fork_and_exec(t_list *head, t_list *c_lst, char *envp[], int fd[]
 		ft_close_two(STDIN_FILENO, STDOUT_FILENO);
 }
 
-static int	ft_set_pipes_run_cmds(t_list *head, t_list *c_lst, char *argv[], char *envp[])
+static int	ft_pipe_and_run_cmd(t_list *h, t_list *cl, char *av[], char *envp[])
 {
 	int		in_fd;
 	int		out_fd;
 	int		fd[2];
 	t_cmd	*cmd;
 
-	cmd = (t_cmd *)(c_lst->content);
+	cmd = (t_cmd *)(cl->content);
 	if (!cmd->is_last && !cmd->is_unique)
 		if (pipe(fd) == -1)
-			ft_clear_list_exit(&head, "pipe", errno, NULL);
+			ft_clear_list_exit(&h, "pipe", errno, NULL);
 	if (cmd->is_first || cmd->is_unique)
-		in_fd = open(argv[1], O_RDONLY);
+		in_fd = open(av[1], O_RDONLY);
 	else
 		in_fd = cmd->prev_fd;
 	if (cmd->is_first || cmd->is_mid)
 		out_fd = fd[1];
 	else
-		out_fd = open(argv[(cmd->ac) - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (ft_protect_fopen(in_fd, out_fd, c_lst, argv) == -1)
-		return (ft_skip(&head, fd));
+		out_fd = open(av[(cmd->ac) - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (ft_protect_fopen(in_fd, out_fd, h, cmd) == -1)
+		return (ft_skip(&h, fd));
 	ft_dup2_and_close(in_fd, out_fd);
-	ft_fork_and_exec(head, c_lst, envp, fd);
+	ft_fork_exec(h, cl, envp, fd);
 	if (cmd->is_first || cmd->is_mid)
-		((t_cmd *)(c_lst->next->content))->prev_fd = fd[0];
+		((t_cmd *)(cl->next->content))->prev_fd = fd[0];
 	return (0);
 }
 
@@ -98,7 +98,7 @@ int	main(int argc, char *argv[], char *envp[])
 	trav = head;
 	while (trav != NULL)
 	{
-		ft_set_pipes_run_cmds(head, trav, argv, envp);
+		ft_pipe_and_run_cmd(head, trav, argv, envp);
 		trav = trav->next;
 	}
 	ft_lstclear(&head, (void (*)(void *))ft_free_cmd);
