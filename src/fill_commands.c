@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:42:41 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/11 17:34:56 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/13 19:06:48 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,8 @@ void	fill_commands(int argc, char *argv[], char *envp[], t_list **head)
 		ft_get_path_type_and_fix_cmd(cmd);
 		cmd->path = parse_path(envp, cmd, argv);
 		if (cmd->is_last && (!cmd->path || access(cmd->path, X_OK) != 0))
+			ft_exit_bad_lstcmd(head, cmd->cmd[0], 127, cmd);
+		if (cmd->is_unique && (!cmd->path || access(cmd->path, X_OK) != 0))
 			ft_exit_bad_lstcmd(head, cmd->cmd[0], 127, cmd);
 		ft_lstadd_back(head, ft_lstnew((void *)cmd));
 		cmd_index++;

@@ -6,7 +6,7 @@
 /*   By: eduribei <eduribei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:33:29 by eduribei          #+#    #+#             */
-/*   Updated: 2024/10/13 16:35:38 by eduribei         ###   ########.fr       */
+/*   Updated: 2024/10/13 19:16:37 by eduribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,17 @@ static void	ft_validate_args(int argc, char *argv[])
 {
 	int	out_err;
 	int	out_fd;	
+	int	in_err;
 
 	out_err = 0;
+	in_err = 0;
 	if (argc < 4)
 		ft_error_exit("Invalid number of arguments.\n", 1, STDERR_FILENO);
 	if ((access(argv[1], F_OK) != 0) || (access(argv[1], R_OK) != 0))
+	{
 		ft_perror_extra(argv[0], argv[1]);
+		in_err = errno;
+	}
 	out_fd = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (out_fd == -1)
 	{
@@ -30,6 +35,8 @@ static void	ft_validate_args(int argc, char *argv[])
 	}
 	else
 		close(out_fd);
+	if (in_err && argc == 4)
+		exit(in_err);
 	if (out_err)
 		exit(out_err);
 }
@@ -49,9 +56,9 @@ static void	ft_fork_exec(t_list *head, t_list *c_lst, char *envp[], int fd[])
 			ft_skip_cmd_exit(&head, cmd->cmd[0], 127, fd);
 		else if (cmd->infile_invalid)
 			ft_skip_cmd_exit(&head, NULL, 0, fd);
-		execve(cmd->path, cmd->cmd, envp);
-		if (!cmd->is_last)
+		if (cmd->is_first)
 			close(fd[0]);
+		execve(cmd->path, cmd->cmd, envp);
 		ft_clear_list_exit(&head, "execve", errno, NULL);
 	}
 	if (cmd->is_last || cmd->is_unique)

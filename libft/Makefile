@@ -66,14 +66,15 @@ CC = cc
 
 RM = rm -f
 
-CFLAGS = -Wall -Wextra -Werror -g
+CFLAGS = -Wall -Wextra -Werror
 
 NAME = libft.a
 
 all: $(NAME)
 
 $(NAME): $(OBJS_S) $(OBJS_B)
-	ar rc $(NAME) $(OBJS_S) $(OBJS_B)
+	@ar rc $(NAME) $(OBJS_S) $(OBJS_B)
+	@ranlib $(NAME)
 
 %.o: %.c libft.h
 	$(CC) $(CFLAGS) -c $< -o $@
